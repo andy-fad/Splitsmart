@@ -60,7 +60,7 @@ The MVP includes the "Do" quadrant of my Eisenhower Matrix:
 ## Design Documents
 
 - [Eisenhower Matrix](docs/eisenhower-matrix.pdf)
-- [System Diagram](docs/system-diagram.png)
+- [System Diagram](docs/system-diagram.jpg)
 
 ## Build Plan
 

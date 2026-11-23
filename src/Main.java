@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -8,9 +9,12 @@ import java.util.Scanner;
  * expenses among friends and shows who owes whom.
  */
 public class Main {
+    private static final String DATA_FILE = "data/expenses.csv";
+
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
         Ledger ledger = new Ledger();
+        loadExpenses(ledger);
         System.out.println("Welcome to SplitSmart!");
         System.out.println("Track shared expenses and see who owes whom.");
 
@@ -52,6 +56,18 @@ public class Main {
         System.out.print("Choose an option: ");
     }
 
+    private static void loadExpenses(Ledger ledger) {
+        try {
+            int skipped = ledger.loadFromFile(DATA_FILE);
+            System.out.println("Loaded " + ledger.getExpenses().size() + " saved expense(s).");
+            if (skipped > 0) {
+                System.out.println("Warning: skipped " + skipped + " unreadable line(s) in " + DATA_FILE + ".");
+            }
+        } catch (IOException e) {
+            System.out.println("Couldn't read " + DATA_FILE + ". Starting with no expenses.");
+        }
+    }
+
     private static void addExpense(Scanner input, Ledger ledger) {
         System.out.print("What was it for? ");
         String description = input.nextLine().trim();
@@ -59,11 +75,21 @@ public class Main {
             System.out.println("Description can't be empty.");
             return;
         }
+        // Commas separate the columns in the save file, so one inside a
+        // description would break that line when it's loaded back.
+        if (description.contains(",")) {
+            System.out.println("Please don't use commas in the description.");
+            return;
+        }
 
         System.out.print("Who paid? ");
         String payer = normalizeName(input.nextLine());
         if (payer.isEmpty()) {
             System.out.println("Payer name can't be empty.");
+            return;
+        }
+        if (payer.contains(",")) {
+            System.out.println("Enter only one name for who paid.");
             return;
         }
 
@@ -84,6 +110,13 @@ public class Main {
         Expense expense = new Expense(description, payer, amountCents, participants);
         ledger.addExpense(expense);
         System.out.println("Added: " + expense);
+
+        // Save right away instead of only on quit, so nothing is lost if the terminal is closed.
+        try {
+            ledger.saveToFile(DATA_FILE);
+        } catch (IOException e) {
+            System.out.println("Warning: couldn't save to " + DATA_FILE + ". This expense will be lost when you quit.");
+        }
     }
 
     private static void viewExpenses(Ledger ledger) {

@@ -1,4 +1,4 @@
-# SplitTab: A Command-Line Bill Splitter
+# Splitsmart: A Command-Line Bill Splitter
 
 A simple Java command-line app that tracks shared expenses among friends and tells everyone exactly who owes whom.
 

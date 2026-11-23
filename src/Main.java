@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 /**
@@ -28,7 +29,7 @@ public class Main {
                     viewExpenses(ledger);
                     break;
                 case "3":
-                    System.out.println("Show balances: coming soon.");
+                    showBalances(ledger);
                     break;
                 case "4":
                     running = false;
@@ -94,6 +95,26 @@ public class Main {
         System.out.println("All expenses:");
         for (int i = 0; i < expenses.size(); i++) {
             System.out.println((i + 1) + ". " + expenses.get(i));
+        }
+    }
+
+    private static void showBalances(Ledger ledger) {
+        if (ledger.getExpenses().isEmpty()) {
+            System.out.println("No expenses yet.");
+            return;
+        }
+        Map<String, Long> balances = ledger.calculateBalances();
+        System.out.println("Balances:");
+        for (Map.Entry<String, Long> entry : balances.entrySet()) {
+            String name = entry.getKey();
+            long cents = entry.getValue();
+            if (cents > 0) {
+                System.out.println(name + " is owed " + Expense.formatCents(cents));
+            } else if (cents < 0) {
+                System.out.println(name + " owes " + Expense.formatCents(-cents));
+            } else {
+                System.out.println(name + " is settled up");
+            }
         }
     }
 
